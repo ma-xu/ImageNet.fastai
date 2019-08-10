@@ -217,13 +217,13 @@ class data_prefetcher():
             self.next_target = None
             return
         with torch.cuda.stream(self.stream):
-            self.next_input = self.next_input.cuda(async=True)
-            self.next_target = self.next_target.cuda(async=True)
+            self.next_input = self.next_input.cuda(non_blocking=True)
+            self.next_target = self.next_target.cuda(non_blocking=True)
 
     def next(self):
         if not self.prefetch:
             input,target = next(self.loader)
-            return input.cuda(async=True),target.cuda(async=True)
+            return input.cuda(non_blocking=True),target.cuda(non_blocking=True)
 
         torch.cuda.current_stream().wait_stream(self.stream)
         input = self.next_input
@@ -325,7 +325,7 @@ def validate(val_loader, model, criterion, epoch, start_time):
     while input is not None:
         i += 1
 
-        target = target.cuda(async=True)
+        target = target.cuda(non_blocking=True)
         input_var = Variable(input)
         target_var = Variable(target)
 
